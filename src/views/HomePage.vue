@@ -7,7 +7,7 @@
           </div>
           <div class="flex items-center gap-3">
             <button class="btn btn-base-300" @click="$router.push({name: 'Home'})">Monitoring</button>
-            <button class="btn btn-base-300" @click="$router.push({name: 'Controlling'})">Controlling</button>
+            <!-- <button class="btn btn-base-300" @click="$router.push({name: 'Controlling'})">Controlling</button> -->
           </div>
         </div>
         <div class="grid grid-cols-4 min-h-[88vh] items-center justify-items-center">
@@ -77,21 +77,12 @@
           </div>
 
           <div class="col-span-4 md:col-span-2 p-4 text-left w-full space-y-2">
-            <div v-if="waves.length > 0">
-              <card-view-vue header="Chart Plotting">
-                <div v-if="selectedWave == -1">
-                  <waves-chart-vue 
-                    :wave-data="waves.map(wave => wave.data)" 
-                    :wave-names="waves.map(wave => wave.name)" 
-                  />
-                </div>
-                <div v-else>
-                  <waves-chart-vue 
-                    :wave-data="[waves[selectedWave].data]" 
-                    :wave-names="[waves[selectedWave].name]" 
-                  />
-                </div>
-              </card-view-vue>
+            <label class="input input-bordered flex items-center gap-2">
+              ESPCAM IP
+              <input type="text" v-model="espcamIP" class="grow" placeholder="192.168.X.XXX" />
+            </label>
+            <div id="esp-cam" class="w-full h-[30rem] rounded-2xl bg-base-100 flex justify-center items-center">
+              <h1 class="text-2xl">Camera Not Found</h1>
             </div>
           </div>
 
@@ -103,7 +94,7 @@
 
 <script setup lang="ts">
 import { IonContent, IonPage } from '@ionic/vue';
-import { ref, Ref, onMounted } from 'vue';
+import { ref, Ref, onMounted, watch } from 'vue';
 import { database, ref as firebaseRef, get } from '@/firebaseConfig';
 import { remove, child } from 'firebase/database';
 import CardViewVue from '@/components/CardView.vue';
@@ -112,7 +103,7 @@ import * as XLSX from 'xlsx'
 
 const selectedWave: Ref<any> = ref(-1);
 const tableData: Ref<any> = ref([])
-
+const espcamIP = ref('192.168.25.226')
 const user_name: Ref<String|null> = ref(null)
 const user_gender: Ref<String|null> = ref(null)
 const user_age: Ref<String|null> = ref(null)
@@ -129,6 +120,17 @@ onMounted(() => {
     user_name.value = assignedUser.name
     user_gender.value = assignedUser.gender == null && assignedUser.gender == undefined && assignedUser.gender != "L" && assignedUser.gender != "P" ? "L" : assignedUser.gender
     user_age.value = assignedUser.age
+  }
+});
+
+watch(espcamIP, (newIP) => {
+  const camContainer = document.getElementById('esp-cam');
+  if (camContainer && newIP && newIP.length > 7) {
+    camContainer.innerHTML = `
+      <img src="http://${newIP}" alt="ESP32-CAM Stream" class="rounded-xl object-cover w-full h-full" />
+    `;
+  } else if (camContainer) {
+    camContainer.innerHTML = `<h1 class="text-2xl">Camera Not Found</h1>`;
   }
 });
 
