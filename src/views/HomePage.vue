@@ -110,7 +110,7 @@ const user_age: Ref<String|null> = ref(null)
 
 onMounted(() => {
   fetchDataFromFirebase();
-  document.documentElement.setAttribute('data-theme', 'pastel')
+  document.documentElement.setAttribute('data-theme', 'lemonade')
   const localUser = JSON.parse(sessionStorage.getItem('user') as string)
   if(localUser) {
     user_name.value = localUser.displayName
